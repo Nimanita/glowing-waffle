@@ -1,0 +1,21 @@
+# Python artifacts
+*.pyc
+__pycache__/
+*.pyo
+
+# Django stuff
+*.sqlite3
+/media
+/staticfiles
+
+# Virtual environment
+env/
+venv/
+.venv/
+
+# Environment variables
+.env
+
+# IDE & editor settings
+.vscode/
+.idea/
