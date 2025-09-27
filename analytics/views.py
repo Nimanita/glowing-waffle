@@ -178,7 +178,8 @@ def export_analytics(request):
         data = AnalyticsOperations.export_analytics_data(format_type)
         
         if format_type == 'csv':
-            response = HttpResponse(data, content_type='text/csv')
+            csv_data = AnalyticsOperations.export_analytics_data('csv')
+            response = HttpResponse(csv_data, content_type='text/csv')
             response['Content-Disposition'] = 'attachment; filename="analytics_data.csv"'
             return response
         

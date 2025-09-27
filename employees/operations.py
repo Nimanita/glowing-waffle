@@ -142,10 +142,10 @@ class EmployeeOperations:
         """Get employee performance history"""
         employee = get_object_or_404(Employee.objects.select_related('department'), id=employee_id)
         from analytics.models import Performance
-        from analytics.serializers import PerformanceSerializer
+        from analytics.serializers import PerformanceSerializerForEmployeeModel
         
         performances = Performance.objects.filter(employee=employee).order_by('-review_date')
-        serializer = PerformanceSerializer(performances, many=True)
+        serializer = PerformanceSerializerForEmployeeModel(performances, many=True)
         
         return {
             'employee_id': employee.id,
@@ -162,7 +162,7 @@ class EmployeeOperations:
         from django.utils import timezone
         employee = get_object_or_404(Employee.objects.select_related('department'), id=employee_id)
         from analytics.models import Attendance
-        from analytics.serializers import AttendanceSerializer
+        from analytics.serializers import AttendanceSerializerForEmployeeModel
         
         end_date = timezone.now().date()
         start_date = end_date - timedelta(days=days)
@@ -172,7 +172,7 @@ class EmployeeOperations:
             date__range=[start_date, end_date]
         ).order_by('-date')
         
-        serializer = AttendanceSerializer(attendance_records, many=True)
+        serializer = AttendanceSerializerForEmployeeModel(attendance_records, many=True)
         
         return {
             'employee_id': employee.id,
