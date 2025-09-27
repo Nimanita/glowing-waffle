@@ -1,5 +1,5 @@
 # glowing-waffle
-# Employee Data Management System
+
 
 A comprehensive Django REST API system for managing employee data with synthetic data generation, PostgreSQL storage, REST APIs, and Chart.js data visualization. Built to demonstrate modern web development architecture and coding efficiency.
 
@@ -621,34 +621,10 @@ The system provides a comprehensive analytics dashboard with Chart.js integratio
    - Growth tracking
 
 ### VISUAL APIS
-# Dashboard summary
-GET /api/analytics/summary/
 
-# Analytics Dashboard Interface (Chart.js frontend)
+## Analytics Dashboard Interface (Chart.js frontend)
 GET /api/analytics/dashboard/
-
-# Analytics Login for Charts (token validation)
-GET /api/analytics/login/
-
-# Department statistics (for pie chart)
-GET /api/analytics/department-stats/
-
-# Salary distribution (for bar chart)
-GET /api/analytics/salary-distribution/
-
-# Performance trends (for line chart)
-GET /api/analytics/performance-trends/
-
-# Attendance rates (for doughnut chart)
-GET /api/analytics/attendance-rates/
-
-# Hire date timeline (for line chart)
-GET /api/analytics/hire-timeline/
-
-# Export analytics data
-GET /api/analytics/export/?format=json
-GET /api/analytics/export/?format=csv
-
+POST /api/analytics/login
 
 
 ## 📊 Data Generation
