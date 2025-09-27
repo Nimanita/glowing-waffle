@@ -623,8 +623,13 @@ The system provides a comprehensive analytics dashboard with Chart.js integratio
 ### VISUAL APIS
 
 ## Analytics Dashboard Interface (Chart.js frontend)
-GET /api/analytics/dashboard/
-POST /api/analytics/login
+- GET /api/analytics/dashboard/
+- POST /api/analytics/login
+  
+<img width="1834" height="910" alt="Screenshot from 2025-09-27 17-00-56" src="https://github.com/user-attachments/assets/1eaa3123-44fa-458c-abb1-4d2d6efde97b" />
+&nbsp;&nbsp;&nbsp;&nbsp;
+<img width="1843" height="929" alt="Screenshot from 2025-09-27 17-01-04" src="https://github.com/user-attachments/assets/251f42de-8633-4b76-96d6-8bd70d90f7f4" />
+
 
 
 ## 📊 Data Generation
