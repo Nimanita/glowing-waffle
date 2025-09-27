@@ -205,7 +205,10 @@ class AnalyticsOperations:
                 output = io.StringIO()
                 writer = csv.writer(output)
                 
-                # Write headers and data for different sections
+                # Add CSV header
+                writer.writerow(['Employee Analytics Report'])
+                writer.writerow(['Generated at:', data['generated_at']])
+                writer.writerow([])  # Empty row
                 
                 # Department Statistics
                 writer.writerow(['=== DEPARTMENT STATISTICS ==='])
@@ -234,6 +237,34 @@ class AnalyticsOperations:
                         writer.writerow([label, f"{rate}%"])
                 writer.writerow([])  # Empty row for separation
                 
+                # Performance Trends
+                writer.writerow(['=== PERFORMANCE TRENDS ==='])
+                performance_trends = data['performance_trends']
+                if performance_trends and 'datasets' in performance_trends:
+                    datasets = performance_trends['datasets']
+                    labels = performance_trends.get('labels', [])
+                    if datasets and len(datasets) > 0:
+                        writer.writerow(['Period', 'Average Performance Score'])
+                        dataset = datasets[0]  # Use first dataset
+                        if 'data' in dataset and labels:
+                            for label, score in zip(labels, dataset['data']):
+                                writer.writerow([label, f"{score:.2f}"])
+                writer.writerow([])  # Empty row for separation
+                
+                # Hire Timeline
+                writer.writerow(['=== HIRE TIMELINE ==='])
+                hire_timeline = data['hire_timeline']
+                if hire_timeline and 'datasets' in hire_timeline:
+                    datasets = hire_timeline['datasets']
+                    labels = hire_timeline.get('labels', [])
+                    if datasets and len(datasets) > 0:
+                        writer.writerow(['Month', 'New Hires'])
+                        dataset = datasets[0]  # Use first dataset
+                        if 'data' in dataset and labels:
+                            for label, count in zip(labels, dataset['data']):
+                                writer.writerow([label, count])
+                writer.writerow([])  # Empty row for separation
+                
                 # Summary Statistics
                 writer.writerow(['=== SUMMARY STATISTICS ==='])
                 summary = data['summary']
@@ -245,13 +276,10 @@ class AnalyticsOperations:
                     writer.writerow(['Average Performance', f"{summary.get('average_performance', 0):.2f}"])
                     writer.writerow(['Attendance Rate', f"{summary.get('attendance_rate', 0):.2f}%"])
                 
-                writer.writerow([])  # Empty row for separation
-                writer.writerow(['Generated At', data['generated_at']])
-                
                 return output.getvalue()
             
             return data
-            
+        
         except Exception as e:
             # Log the error for debugging
             print(f"Error in export_analytics_data: {str(e)}")
