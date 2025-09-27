@@ -209,3 +209,11 @@ MESSAGE_TAGS = {
     'WARNING': 'warning',
     'ERROR': 'error',
 }
+import sys
+
+# Use SQLite in-memory DB when running `manage.py test`
+if 'test' in sys.argv:
+    DATABASES['default'].update({
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': ':memory:',
+    })

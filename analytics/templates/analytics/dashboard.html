@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -40,11 +39,34 @@
             opacity: 0.9;
         }
         
-        .header .user-info {
+        .header-actions {
             position: absolute;
             top: 20px;
             right: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
             font-size: 0.9rem;
+        }
+        
+        .export-btn-header {
+            background: rgba(255,255,255,0.2);
+            color: white;
+            border: 1px solid rgba(255,255,255,0.3);
+            padding: 8px 15px;
+            border-radius: 20px;
+            cursor: pointer;
+            text-decoration: none;
+            font-size: 0.85rem;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .export-btn-header:hover {
+            background: rgba(255,255,255,0.3);
+            transform: translateY(-1px);
         }
         
         .logout-btn {
@@ -57,11 +79,15 @@
             text-decoration: none;
             font-size: 0.85rem;
             transition: background 0.3s ease;
-            margin-left: 10px;
         }
         
         .logout-btn:hover {
             background: rgba(255,255,255,0.3);
+        }
+        
+        .user-welcome {
+            color: white;
+            opacity: 0.9;
         }
         
         .summary-cards {
@@ -143,31 +169,6 @@
             margin: 20px 0;
         }
         
-        .export-section {
-            text-align: center;
-            margin-top: 40px;
-            padding: 30px;
-            background: white;
-            border-radius: 10px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-        }
-        
-        .export-btn {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            border: none;
-            padding: 12px 30px;
-            margin: 0 10px;
-            border-radius: 25px;
-            cursor: pointer;
-            font-size: 1rem;
-            transition: transform 0.3s ease;
-        }
-        
-        .export-btn:hover {
-            transform: translateY(-2px);
-        }
-        
         @media (max-width: 768px) {
             .charts-grid {
                 grid-template-columns: 1fr;
@@ -181,18 +182,50 @@
                 font-size: 2rem;
             }
             
-            .header .user-info {
+            .header-actions {
                 position: static;
                 margin-top: 15px;
+                justify-content: center;
+                flex-wrap: wrap;
             }
+            
+            .user-welcome {
+                width: 100%;
+                text-align: center;
+                margin-bottom: 10px;
+            }
+        }
+        
+        /* Success message styling */
+        .success-message {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #28a745;
+            color: white;
+            padding: 15px 20px;
+            border-radius: 5px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            z-index: 1000;
+            opacity: 0;
+            transform: translateX(100%);
+            transition: all 0.3s ease;
+        }
+        
+        .success-message.show {
+            opacity: 1;
+            transform: translateX(0);
         }
     </style>
 </head>
 <body>
     <div class="header">
-        <div class="user-info">
+        <div class="header-actions">
             {% if user %}
-                Welcome, {{ user.username }}
+                <span class="user-welcome">Welcome, {{ user.username }}</span>
+                <button class="export-btn-header" onclick="exportData('json')" title="Export data as JSON">
+                    📄 Export JSON
+                </button>
                 <a href="{% url 'analytics-logout' %}" class="logout-btn">Logout</a>
             {% endif %}
         </div>
@@ -248,13 +281,8 @@
         </div>
     </div>
 
-    <!-- Export Section -->
-    <div class="export-section">
-        <h2>📄 Export Data</h2>
-        <p>Download analytics data in JSON format</p>
-        <br>
-        <button class="export-btn" onclick="exportData('json')">Export as JSON</button>
-    </div>
+    <!-- Success message container -->
+    <div id="successMessage" class="success-message"></div>
 
     <script>
         // API Configuration
@@ -264,6 +292,17 @@
         // Get CSRF token for Django
         function getCSRFToken() {
             return document.querySelector('[name=csrfmiddlewaretoken]')?.value || '';
+        }
+
+        // Show success message
+        function showSuccessMessage(message) {
+            const messageEl = document.getElementById('successMessage');
+            messageEl.textContent = message;
+            messageEl.classList.add('show');
+            
+            setTimeout(() => {
+                messageEl.classList.remove('show');
+            }, 3000);
         }
 
         // Generic fetch function for API calls with token authentication
@@ -534,44 +573,61 @@
 
         // Export data function
         async function exportData(format) {
-    try {
-        const response = await fetch(`${API_BASE}/export/?format=${format}`, {
-            method: 'GET',
-            headers: {
-                'Authorization': `Token ${AUTH_TOKEN}`,
-                'X-CSRFToken': getCSRFToken(),
-            },
-        });
-        
-        if (!response.ok) {
-            if (response.status === 401) {
-                window.location.href = '/api/analytics/login/';
-                return;
+            try {
+                // Show loading state
+                const exportBtn = document.querySelector('.export-btn-header');
+                const originalText = exportBtn.innerHTML;
+                exportBtn.innerHTML = '⏳ Exporting...';
+                exportBtn.disabled = true;
+                
+                const response = await fetch(`${API_BASE}/export/?format=${format}`, {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Token ${AUTH_TOKEN}`,
+                        'X-CSRFToken': getCSRFToken(),
+                    },
+                });
+                
+                if (!response.ok) {
+                    if (response.status === 401) {
+                        window.location.href = '/api/analytics/login/';
+                        return;
+                    }
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                if (format === 'json') {
+                    // Handle JSON download
+                    const data = await response.json();
+                    const jsonString = JSON.stringify(data, null, 2);
+                    const blob = new Blob([jsonString], { type: 'application/json' });
+                    const url = window.URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = `analytics_data_${new Date().toISOString().split('T')[0]}.json`;
+                    document.body.appendChild(a);
+                    a.click();
+                    window.URL.revokeObjectURL(url);
+                    document.body.removeChild(a);
+                }
+                
+                showSuccessMessage(`Data exported successfully as ${format.toUpperCase()}!`);
+                
+                // Restore button state
+                exportBtn.innerHTML = originalText;
+                exportBtn.disabled = false;
+                
+            } catch (error) {
+                console.error('Export error:', error);
+                showSuccessMessage('Failed to export data. Please try again.');
+                
+                // Restore button state
+                const exportBtn = document.querySelector('.export-btn-header');
+                exportBtn.innerHTML = '📄 Export JSON';
+                exportBtn.disabled = false;
             }
-            throw new Error(`HTTP error! status: ${response.status}`);
         }
-        
-        if (format === 'json') {
-            // Handle JSON download
-            const data = await response.json();
-            const jsonString = JSON.stringify(data, null, 2);
-            const blob = new Blob([jsonString], { type: 'application/json' });
-            const url = window.URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = 'analytics_data.json';
-            document.body.appendChild(a);
-            a.click();
-            window.URL.revokeObjectURL(url);
-            document.body.removeChild(a);
-        }
-        
-        alert(`Data exported successfully as ${format.toUpperCase()}!`);
-    } catch (error) {
-        console.error('Export error:', error);
-        alert('Failed to export data. Please try again.');
-    }
-}
+
         // Initialize dashboard
         document.addEventListener('DOMContentLoaded', async function() {
             try {
