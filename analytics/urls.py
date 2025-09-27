@@ -1,6 +1,6 @@
 from django.urls import path
 from . import views
-
+from django.contrib.auth.views import LoginView, LogoutView
 
 urlpatterns = [
     path('summary/', views.dashboard_summary, name='dashboard-summary'),
@@ -10,6 +10,10 @@ urlpatterns = [
     path('attendance-rates/', views.attendance_rates, name='attendance-rates'),
     path('hire-timeline/', views.hire_timeline, name='hire-timeline'),
     path('export/', views.export_analytics, name='export-analytics'),
-    path('dashboard/', views.dashboard_view, name='dashboard-view'),  # HTML view
+# Web views - using custom authentication
+    path('dashboard/', views.dashboard_view, name='dashboard-view'),
+    path('login/', views.analytics_login, name='analytics-login'),  # Custom login view
+    path('logout/', views.analytics_logout, name='analytics-logout'),  # Custom logout view
+
 ]
 
