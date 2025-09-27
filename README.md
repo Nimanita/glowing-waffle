@@ -620,37 +620,36 @@ The system provides a comprehensive analytics dashboard with Chart.js integratio
    - Seasonal patterns
    - Growth tracking
 
-### Chart.js Integration Example
-```javascript
-// Department Statistics Chart
-fetch('/api/analytics/department-stats/')
-    .then(response => response.json())
-    .then(data => {
-        const ctx = document.getElementById('departmentChart').getContext('2d');
-        new Chart(ctx, {
-            type: 'pie',
-            data: {
-                labels: data.labels,
-                datasets: [{
-                    data: data.data,
-                    backgroundColor: data.colors
-                }]
-            },
-            options: {
-                responsive: true,
-                plugins: {
-                    legend: {
-                        position: 'bottom'
-                    },
-                    title: {
-                        display: true,
-                        text: 'Employee Distribution by Department'
-                    }
-                }
-            }
-        });
-    });
-```
+### VISUAL APIS
+# Dashboard summary
+GET /api/analytics/summary/
+
+# Analytics Dashboard Interface (Chart.js frontend)
+GET /api/analytics/dashboard/
+
+# Analytics Login for Charts (token validation)
+GET /api/analytics/login/
+
+# Department statistics (for pie chart)
+GET /api/analytics/department-stats/
+
+# Salary distribution (for bar chart)
+GET /api/analytics/salary-distribution/
+
+# Performance trends (for line chart)
+GET /api/analytics/performance-trends/
+
+# Attendance rates (for doughnut chart)
+GET /api/analytics/attendance-rates/
+
+# Hire date timeline (for line chart)
+GET /api/analytics/hire-timeline/
+
+# Export analytics data
+GET /api/analytics/export/?format=json
+GET /api/analytics/export/?format=csv
+
+
 
 ## 📊 Data Generation
 
@@ -687,7 +686,7 @@ python manage.py test
 
 # Run specific app tests
 python manage.py test employees
-python manage.py test analytics
+python manage.py test department
 
 # Run with coverage
 pip install coverage
