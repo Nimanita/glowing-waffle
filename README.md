@@ -418,7 +418,7 @@ Content-Type: application/json
 }
 
 # Use token in subsequent requests
-Authorization: Token your-auth-token-here
+## Authorization: Token your-auth-token-here
 ```
 
 ### Core API Endpoints
@@ -751,66 +751,7 @@ DB_HOST=your-db-host
 DB_PORT=5432
 ```
 
-### Docker Deployment
-```dockerfile
-# Dockerfile
-FROM python:3.11-slim
 
-WORKDIR /app
-
-COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
-
-COPY . .
-
-EXPOSE 8000
-
-CMD ["gunicorn", "--bind", "0.0.0.0:8000", "config.wsgi:application"]
-```
-
-```yaml
-# docker-compose.yml
-version: '3.8'
-services:
-  web:
-    build: .
-    ports:
-      - "8000:8000"
-    depends_on:
-      - db
-    environment:
-      - DEBUG=False
-      - DB_HOST=db
-    volumes:
-      - static_volume:/app/staticfiles
-      - media_volume:/app/media
-
-  db:
-    image: postgres:13
-    environment:
-      POSTGRES_DB: employee_management
-      POSTGRES_USER: emp_user
-      POSTGRES_PASSWORD: your_password
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-
-volumes:
-  postgres_data:
-  static_volume:
-  media_volume:
-```
-
-### Production Checklist
-- [ ] Set DEBUG=False
-- [ ] Configure secure SECRET_KEY
-- [ ] Set up production database
-- [ ] Configure static file serving
-- [ ] Set up SSL/HTTPS
-- [ ] Configure email settings
-- [ ] Set up logging
-- [ ] Configure backup strategy
-- [ ] Set up monitoring
-- [ ] Configure CORS if needed
 
 ## 📝 Usage Examples
 
@@ -859,53 +800,7 @@ curl -X GET "http://localhost:8000/api/analytics/export/?format=csv" \
   -o analytics_export.csv
 ```
 
-### Python Client Example
 
-```python
-import requests
-import json
-
-class EmployeeAPIClient:
-    def __init__(self, base_url, token):
-        self.base_url = base_url
-        self.headers = {
-            'Authorization': f'Token {token}',
-            'Content-Type': 'application/json'
-        }
-    
-    def get_employees(self, search=None, department=None):
-        params = {}
-        if search:
-            params['search'] = search
-        if department:
-            params['department'] = department
-        
-        response = requests.get(
-            f'{self.base_url}/api/employees/',
-            headers=self.headers,
-            params=params
-        )
-        return response.json()
-    
-    def create_employee(self, employee_data):
-        response = requests.post(
-            f'{self.base_url}/api/employees/',
-            headers=self.headers,
-            data=json.dumps(employee_data)
-        )
-        return response.json()
-    
-    def get_analytics_summary(self):
-        response = requests.get(
-            f'{self.base_url}/api/analytics/summary/',
-            headers=self.headers
-        )
-        return response.json()
-
-# Usage
-client = EmployeeAPIClient('http://localhost:8000', 'your-token-here')
-employees = client.get_employees(search='john')
-summary = client.get_analytics_summary()
 ```
 
 ## 🔧 Troubleshooting
