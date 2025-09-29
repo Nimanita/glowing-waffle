@@ -1,4 +1,3 @@
-# apps/departments/operations.py
 from django.core.paginator import Paginator
 from django.db.models import Q, Count, Avg, Min, Max
 from django.shortcuts import get_object_or_404
