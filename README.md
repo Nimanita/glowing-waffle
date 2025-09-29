@@ -269,7 +269,7 @@ class Attendance(models.Model):
 ### 1. Clone the Repository
 ```bash
 git clone https://github.com/Nimanita/glowing-waffle.git
-cd employee_management_system
+cd glowing-waffle
 ```
 
 ### 2. Create Virtual Environment
@@ -320,7 +320,7 @@ ALTER USER emp_user CREATEDB;
 
 ### 5. Environment Configuration
 
-Create a `.env.dev` file in the project root:
+Create a `.env` file in the config folder:
 
 ```bash
 # Database Configuration
@@ -335,19 +335,13 @@ SECRET_KEY=your-super-secret-key-here
 DEBUG=True
 ALLOWED_HOSTS=localhost,127.0.0.1
 
-# Email Configuration (Optional)
-EMAIL_HOST=smtp.gmail.com
-EMAIL_PORT=587
-EMAIL_USE_TLS=True
-EMAIL_HOST_USER=your_email@gmail.com
-EMAIL_HOST_PASSWORD=your_app_password
-DEFAULT_FROM_EMAIL=noreply@yourcompany.com
+
 ```
 
 ### 6. Database Migration
 ```bash
 # Create and apply migrations
-python3 manage.py makemigrations
+
 python3 manage.py migrate
 
 # Create superuser
