@@ -1,21 +1,91 @@
-# Python artifacts
-*.pyc
+# === Python / Django ===
 __pycache__/
-*.pyo
+*.py[cod]
+*$py.class
+*.so
+*.egg-info/
+.eggs/
+*.egg
+*.pyc
 
-# Django stuff
-*.sqlite3
-/media
-/staticfiles
+# Django specific
+db.sqlite3
+local_settings.py
+media/
+staticfiles/
+static_root/
 
-# Virtual environment
+# Distribution / packaging
+build/
+dist/
+downloads/
+parts/
+sdist/
+wheels/
+pip-wheel-metadata/
+share/python-wheels/
+MANIFEST
+
+# === Virtual environments ===
 env/
 venv/
 .venv/
+ENV/
+env.bak/
+venv.bak/
 
-# Environment variables
+# === Environment variables ===
 .env
+.env.*           # e.g. .env.development, .env.production
 
-# IDE & editor settings
+# === Node.js / Frontend ===
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+package-lock.json
+yarn.lock
+
+# Frontend build outputs
+build/
+dist/
+public/
+
+# === Caching, coverage, test reports ===
+.nyc_output/
+coverage/
+.coverage
+.coverage.*
+.cache
+.pytest_cache/
+nosetests.xml
+coverage.xml
+junit-*.xml
+
+# === IDEs & Editors ===
 .vscode/
 .idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+.Pylint.d
+*.code-workspace
+
+# === OS generated files ===
+.DS_Store
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# === Docker ===
+docker-compose.override.yml
+.dockerignore
+
+# === Miscellaneous ===
+*.log
+*.bak
+*.tmp
+
