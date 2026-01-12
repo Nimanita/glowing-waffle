@@ -356,14 +356,8 @@ python3 manage.py createsuperuser
 
 ### 7. Generate Sample Data
 ```bash
-# Open Django shell and run data generator
-python3 manage.py shell
-
-# In the shell, run:
-exec(open('utils/data_generator.py').read())
-
-# Or alternatively,run the script:
-# python3 utils/data_generator.py
+run the script:
+python3 utils/data_generator.py
 ```
 
 ### 8. Create Directories and Static Files
