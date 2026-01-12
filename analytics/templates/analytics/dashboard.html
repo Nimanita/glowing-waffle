@@ -251,10 +251,9 @@
     <!-- Export Section -->
     <div class="export-section">
         <h2>📄 Export Data</h2>
-        <p>Download analytics data in your preferred format</p>
+        <p>Download analytics data in JSON format</p>
         <br>
         <button class="export-btn" onclick="exportData('json')">Export as JSON</button>
-        <button class="export-btn" onclick="exportData('csv')">Export as CSV</button>
     </div>
 
     <script>
@@ -535,42 +534,44 @@
 
         // Export data function
         async function exportData(format) {
-            try {
-                const response = await fetch(`${API_BASE}/export/?format=${format}`, {
-                    method: 'GET',
-                    headers: {
-                        'Authorization': `Token ${AUTH_TOKEN}`,
-                        'X-CSRFToken': getCSRFToken(),
-                    },
-                });
-                
-                if (!response.ok) {
-                    if (response.status === 401) {
-                        window.location.href = '/api/analytics/login/';
-                        return;
-                    }
-                    throw new Error(`HTTP error! status: ${response.status}`);
-                }
-                
-                if (format === 'csv') {
-                    const blob = await response.blob();
-                    const url = window.URL.createObjectURL(blob);
-                    const a = document.createElement('a');
-                    a.href = url;
-                    a.download = 'analytics_data.csv';
-                    document.body.appendChild(a);
-                    a.click();
-                    window.URL.revokeObjectURL(url);
-                    document.body.removeChild(a);
-                }
-                
-                alert(`Data exported successfully as ${format.toUpperCase()}!`);
-            } catch (error) {
-                console.error('Export error:', error);
-                alert('Failed to export data. Please try again.');
+    try {
+        const response = await fetch(`${API_BASE}/export/?format=${format}`, {
+            method: 'GET',
+            headers: {
+                'Authorization': `Token ${AUTH_TOKEN}`,
+                'X-CSRFToken': getCSRFToken(),
+            },
+        });
+        
+        if (!response.ok) {
+            if (response.status === 401) {
+                window.location.href = '/api/analytics/login/';
+                return;
             }
+            throw new Error(`HTTP error! status: ${response.status}`);
         }
-
+        
+        if (format === 'json') {
+            // Handle JSON download
+            const data = await response.json();
+            const jsonString = JSON.stringify(data, null, 2);
+            const blob = new Blob([jsonString], { type: 'application/json' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'analytics_data.json';
+            document.body.appendChild(a);
+            a.click();
+            window.URL.revokeObjectURL(url);
+            document.body.removeChild(a);
+        }
+        
+        alert(`Data exported successfully as ${format.toUpperCase()}!`);
+    } catch (error) {
+        console.error('Export error:', error);
+        alert('Failed to export data. Please try again.');
+    }
+}
         // Initialize dashboard
         document.addEventListener('DOMContentLoaded', async function() {
             try {

@@ -180,15 +180,11 @@ def export_analytics(request):
     """Export analytics data in specified format"""
     try:
         format_type = request.query_params.get('format', 'json')
-        data = AnalyticsOperations.export_analytics_data(format_type)
         
-        if format_type == 'csv':
-            csv_data = AnalyticsOperations.export_analytics_data('csv')
-            response = HttpResponse(csv_data, content_type='text/csv')
-            response['Content-Disposition'] = 'attachment; filename="analytics_data.csv"'
-            return response
-        
-        return Response(data, status=status.HTTP_200_OK)
+        if format_type == 'json':
+            data = AnalyticsOperations.export_analytics_data('json')
+            return Response(data, status=status.HTTP_200_OK)
+            
     except Exception as e:
         return Response(
             {'error': 'Failed to export analytics data', 'detail': str(e)},
