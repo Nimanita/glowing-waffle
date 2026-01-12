@@ -62,3 +62,22 @@ class EmployeeUpdateSerializer(serializers.ModelSerializer):
         if Employee.objects.filter(email=value).exclude(id=instance.id).exists():
             raise serializers.ValidationError("Email already exists.")
         return value
+
+class EmployeePerformanceListSerializer(serializers.Serializer):
+    """Minimal serializer for performance data in employee context"""
+    id = serializers.IntegerField()
+    review_date = serializers.DateField()
+    overall_score = serializers.DecimalField(max_digits=3, decimal_places=2)
+    technical_score = serializers.DecimalField(max_digits=3, decimal_places=2)
+    communication_score = serializers.DecimalField(max_digits=3, decimal_places=2)
+    teamwork_score = serializers.DecimalField(max_digits=3, decimal_places=2)
+    review_period = serializers.CharField()
+
+class EmployeeAttendanceListSerializer(serializers.Serializer):
+    """Minimal serializer for attendance data in employee context"""
+    id = serializers.IntegerField()
+    date = serializers.DateField()
+    check_in_time = serializers.TimeField()
+    check_out_time = serializers.TimeField()
+    status = serializers.CharField()
+    total_hours = serializers.DecimalField(max_digits=4, decimal_places=2)

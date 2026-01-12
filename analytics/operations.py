@@ -1,5 +1,6 @@
 # apps/analytics/operations.py
-from django.db.models import Count, Avg, Sum , Min, Max , Q
+from django.db.models import Count, Avg, Sum, Min, Max, Q
+from django.db.models.functions import Extract, TruncMonth
 from datetime import datetime, timedelta
 from django.utils import timezone
 from .models import Performance, Attendance
@@ -110,23 +111,27 @@ class AnalyticsOperations:
     @staticmethod
     def get_attendance_rates():
         """Get attendance rates by month for doughnut chart"""
-        # Get last 6 months attendance
+        # Get last 6 months attendance - PostgreSQL compatible
         six_months_ago = timezone.now().date() - timedelta(days=180)
         
-        monthly_data = Attendance.objects.filter(
-            date__gte=six_months_ago
-        ).extra({
-            'month': "DATE_FORMAT(date, '%%Y-%%m')"
-        }).values('month').annotate(
-            total=Count('id'),
-            present=Count('id', filter=Q(status='PRESENT'))
-        ).order_by('month')
+        # Use Django's database functions for PostgreSQL compatibility
+        monthly_data = (Attendance.objects
+                       .filter(date__gte=six_months_ago)
+                       .annotate(month=TruncMonth('date'))
+                       .values('month')
+                       .annotate(
+                           total=Count('id'),
+                           present=Count('id', filter=Q(status='PRESENT'))
+                       )
+                       .order_by('month'))
         
         labels = []
         data = []
         for month_data in monthly_data:
             rate = (month_data['present'] / month_data['total'] * 100) if month_data['total'] > 0 else 0
-            labels.append(month_data['month'])
+            # Format month as YYYY-MM
+            month_str = month_data['month'].strftime('%Y-%m')
+            labels.append(month_str)
             data.append(round(rate, 2))
         
         colors = ['#4BC0C0', '#36A2EB', '#FF6384', '#FFCE56', '#9966FF', '#FF9F40']
@@ -139,19 +144,27 @@ class AnalyticsOperations:
     
     @staticmethod
     def get_hire_date_timeline():
-        """Get hire date timeline for line chart"""
-        # Group employees by hire date (monthly)
-        hire_data = Employee.objects.extra({
-            'month': "DATE_FORMAT(hire_date, '%%Y-%%m')"
-        }).values('month').annotate(
-            count=Count('id')
-        ).order_by('month')
+        """Get hire date timeline for line chart - PostgreSQL compatible"""
+        # Group employees by hire date (monthly) using Django's TruncMonth
+        hire_data = (Employee.objects
+                    .annotate(month=TruncMonth('hire_date'))
+                    .values('month')
+                    .annotate(count=Count('id'))
+                    .order_by('month'))
+        
+        # Format the data for the chart
+        labels = []
+        counts = []
+        for item in hire_data:
+            month_str = item['month'].strftime('%Y-%m')
+            labels.append(month_str)
+            counts.append(item['count'])
         
         return {
-            'labels': [item['month'] for item in hire_data],
+            'labels': labels,
             'datasets': [{
                 'label': 'New Hires',
-                'data': [item['count'] for item in hire_data],
+                'data': counts,
                 'borderColor': '#FF6384',
                 'backgroundColor': 'rgba(255, 99, 132, 0.1)',
                 'tension': 0.4
@@ -174,29 +187,72 @@ class AnalyticsOperations:
     @staticmethod
     def export_analytics_data(format_type='json'):
         """Export analytics data in specified format"""
-        data = {
-            'summary': AnalyticsOperations.get_dashboard_summary(),
-            'department_stats': AnalyticsOperations.get_department_stats(),
-            'salary_distribution': AnalyticsOperations.get_salary_distribution(),
-            'performance_trends': AnalyticsOperations.get_performance_trends(),
-            'attendance_rates': AnalyticsOperations.get_attendance_rates(),
-            'hire_timeline': AnalyticsOperations.get_hire_date_timeline(),
-            'generated_at': timezone.now().isoformat()
-        }
-        
-        if format_type == 'csv':
-            # Convert to CSV format for specific charts
-            import csv
-            import io
-            output = io.StringIO()
+        try:
+            data = {
+                'summary': AnalyticsOperations.get_dashboard_summary(),
+                'department_stats': AnalyticsOperations.get_department_stats(),
+                'salary_distribution': AnalyticsOperations.get_salary_distribution(),
+                'performance_trends': AnalyticsOperations.get_performance_trends(),
+                'attendance_rates': AnalyticsOperations.get_attendance_rates(),
+                'hire_timeline': AnalyticsOperations.get_hire_date_timeline(),
+                'generated_at': timezone.now().isoformat()
+            }
             
-            # Export department stats as CSV
-            writer = csv.writer(output)
-            writer.writerow(['Department', 'Employee Count'])
-            dept_stats = data['department_stats']
-            for label, count in zip(dept_stats['labels'], dept_stats['data']):
-                writer.writerow([label, count])
+            if format_type == 'csv':
+                import csv
+                import io
+                
+                output = io.StringIO()
+                writer = csv.writer(output)
+                
+                # Write headers and data for different sections
+                
+                # Department Statistics
+                writer.writerow(['=== DEPARTMENT STATISTICS ==='])
+                writer.writerow(['Department', 'Employee Count'])
+                dept_stats = data['department_stats']
+                if dept_stats and 'labels' in dept_stats and 'data' in dept_stats:
+                    for label, count in zip(dept_stats['labels'], dept_stats['data']):
+                        writer.writerow([label, count])
+                writer.writerow([])  # Empty row for separation
+                
+                # Salary Distribution
+                writer.writerow(['=== SALARY DISTRIBUTION ==='])
+                writer.writerow(['Department', 'Average Salary'])
+                salary_dist = data['salary_distribution']
+                if salary_dist and 'labels' in salary_dist and 'data' in salary_dist:
+                    for label, salary in zip(salary_dist['labels'], salary_dist['data']):
+                        writer.writerow([label, f"${salary:,.2f}"])
+                writer.writerow([])  # Empty row for separation
+                
+                # Attendance Rates
+                writer.writerow(['=== ATTENDANCE RATES ==='])
+                writer.writerow(['Month', 'Attendance Rate (%)'])
+                attendance_rates = data['attendance_rates']
+                if attendance_rates and 'labels' in attendance_rates and 'data' in attendance_rates:
+                    for label, rate in zip(attendance_rates['labels'], attendance_rates['data']):
+                        writer.writerow([label, f"{rate}%"])
+                writer.writerow([])  # Empty row for separation
+                
+                # Summary Statistics
+                writer.writerow(['=== SUMMARY STATISTICS ==='])
+                summary = data['summary']
+                if summary:
+                    writer.writerow(['Metric', 'Value'])
+                    writer.writerow(['Total Employees', summary.get('total_employees', 0)])
+                    writer.writerow(['Total Departments', summary.get('total_departments', 0)])
+                    writer.writerow(['Average Salary', f"${summary.get('average_salary', 0):,.2f}"])
+                    writer.writerow(['Average Performance', f"{summary.get('average_performance', 0):.2f}"])
+                    writer.writerow(['Attendance Rate', f"{summary.get('attendance_rate', 0):.2f}%"])
+                
+                writer.writerow([])  # Empty row for separation
+                writer.writerow(['Generated At', data['generated_at']])
+                
+                return output.getvalue()
             
-            return output.getvalue()
-        
-        return data
+            return data
+            
+        except Exception as e:
+            # Log the error for debugging
+            print(f"Error in export_analytics_data: {str(e)}")
+            raise e

@@ -62,3 +62,26 @@ class DashboardSummarySerializer(serializers.Serializer):
     attendance_rate = serializers.FloatField()
     latest_hires = serializers.ListField()
 
+class AttendanceSerializerForEmployeeModel(serializers.ModelSerializer):
+    """Attendance data serializer"""
+    employee_id = serializers.IntegerField(write_only=True)
+    
+    class Meta:
+        model = Attendance
+        fields = [
+            'id', 'employee_id', 'date',
+            'check_in_time', 'check_out_time', 'total_hours',
+            'status'
+        ]
+
+class PerformanceSerializerForEmployeeModel(serializers.ModelSerializer):
+    """Performance data serializer"""
+    employee_id = serializers.IntegerField(write_only=True)
+    
+    class Meta:
+        model = Performance
+        fields = [
+            'id', 'employee_id', 'review_period',
+            'overall_score', 'technical_score', 'communication_score',
+            'teamwork_score', 'review_date'
+        ]
