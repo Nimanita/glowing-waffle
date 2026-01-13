@@ -30,7 +30,7 @@ SECRET_KEY = 'django-insecure-to@x%a-zjp1)n=b8q8n9q%4qrmr=rdg(-#zi75p54dd0yurtfn
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['your-app.onrender.com', 'localhost']
+ALLOWED_HOSTS = ['glowing-waffle-lvcl.onrender.com', 'localhost']
 
 # HTTPS/Security Settings
 SECURE_SSL_REDIRECT = not DEBUG
