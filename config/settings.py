@@ -187,11 +187,25 @@ REDOC_SETTINGS = {
     }
 }
 
-'''REST_FRAMEWORK = {
+REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework.authentication.TokenAuthentication',
     ),
     'DEFAULT_PERMISSION_CLASSES': (
         'rest_framework.permissions.IsAuthenticated',
     ),
-}'''
+}
+# Session Configuration for Dashboard Authentication
+SESSION_COOKIE_AGE = 86400  # 24 hours
+SESSION_COOKIE_HTTPONLY = True
+SESSION_COOKIE_SECURE = False  # Set to True in production with HTTPS
+SESSION_SAVE_EVERY_REQUEST = True
+
+# Message Framework for Login Feedback
+MESSAGE_TAGS = {
+    'DEBUG': 'debug',
+    'INFO': 'info',
+    'SUCCESS': 'success',
+    'WARNING': 'warning',
+    'ERROR': 'error',
+}
