@@ -23,7 +23,7 @@ echo "Setting up admin user..."
 python manage.py shell <<EOF
 from django.contrib.auth import get_user_model
 User = get_user_model()
-if not User.objects.filter(username='admin').exists():
+if not User.objects.filter(username='mamata').exists():
     User.objects.create_superuser('mamata', 'admin@example.com', 'Mamata@12345')
     print('Superuser created: mamata / Mamata@12345')
 EOF
