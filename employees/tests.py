@@ -416,7 +416,7 @@ class EmployeeAPITest(APITestCase):
         url = reverse('employee-detail', kwargs={'pk': self.employee1.id})
         
         response = self.client.delete(url)
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
         self.assertTrue(response.data['success'])
         self.assertIn('data', response.data)
         
