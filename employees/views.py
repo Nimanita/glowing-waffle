@@ -145,7 +145,7 @@ def employee_detail(request, pk):
     elif request.method == 'DELETE':
         try:
             result = EmployeeOperations.delete_employee(pk)
-            return Response(result, status=status.HTTP_200_OK)
+            return Response(result, status=status.HTTP_204_NO_CONTENT)
         except Exception as e:
             return Response(
                 {'error': 'Failed to delete employee', 'detail': str(e)},
